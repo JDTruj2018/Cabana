@@ -127,6 +127,7 @@ namespace Kokkos
             typedef Kokkos::LayoutHilbert array_layout;
 
             dimension_type m_dim;
+
             int sub_flag = 0;
 
             HilbertMap2D hilbert_map{ m_dim.N0, m_dim.N1 };
@@ -394,7 +395,7 @@ namespace Kokkos
             template <class DimRHS, class LayoutRHS>
             KOKKOS_INLINE_FUNCTION 
             constexpr ViewOffset( const ViewOffset<DimRHS, LayoutRHS, void>& rhs, const SubviewExtents<DimRHS::rank, dimension_type::rank>& sub )
-            : m_dim( sub.range_extent(0), sub.range_extent( 1 ), sub.range_extent( 2 ), sub.range_extent( 3 ), sub.range_extent( 4 ), sub.range_extent( 5 ), sub.range_extent( 6 ), sub.range_extent( 7 ) ), sub_flag( 1 )
+            : m_dim( rhs.m_dim.N0, rhs.m_dim.N1, rhs.m_dim.N2, rhs.m_dim.N3, rhs.m_dim.N4, rhs.m_dim.N5, rhs.m_dim.N6, rhs.m_dim.N7 ), sub_flag( 0 )
             {
                 // std::cout << "Trace\n";
             };
@@ -405,28 +406,29 @@ namespace Kokkos
         struct SubviewLegalArgsCompileTime<Kokkos::LayoutHilbert, Kokkos::LayoutHilbert,
                                         RankDest, RankSrc, CurrentArg, Arg,
                                         SubViewArgs...> {
-        enum {
-            value = (((CurrentArg == RankDest - 1) &&
-                    (Kokkos::Impl::is_integral_extent_type<Arg>::value)) ||
-                    ((CurrentArg >= RankDest) && (std::is_integral<Arg>::value)) ||
-                    ((CurrentArg < RankDest) &&
-                    (std::is_same<Arg, Kokkos::Impl::ALL_t>::value)) ||
-                    ((CurrentArg == 0) &&
-                    (Kokkos::Impl::is_integral_extent_type<Arg>::value))) &&
-                    (SubviewLegalArgsCompileTime<Kokkos::LayoutLeft, Kokkos::LayoutLeft,
-                                                RankDest, RankSrc, CurrentArg + 1,
-                                                SubViewArgs...>::value)
-        };
+            enum {
+                value = (((CurrentArg == RankDest - 1) &&
+                        (Kokkos::Impl::is_integral_extent_type<Arg>::value)) ||
+                        ((CurrentArg >= RankDest) && (std::is_integral<Arg>::value)) ||
+                        ((CurrentArg < RankDest) &&
+                        (std::is_same<Arg, Kokkos::Impl::ALL_t>::value)) ||
+                        ((CurrentArg == 0) &&
+                        (Kokkos::Impl::is_integral_extent_type<Arg>::value))) &&
+                        (SubviewLegalArgsCompileTime<Kokkos::LayoutLeft, Kokkos::LayoutLeft,
+                                                    RankDest, RankSrc, CurrentArg + 1,
+                                                    SubViewArgs...>::value)
+            };
         };
 
         template <int RankDest, int RankSrc, int CurrentArg, class Arg>
         struct SubviewLegalArgsCompileTime<Kokkos::LayoutHilbert, Kokkos::LayoutHilbert,
-                                        RankDest, RankSrc, CurrentArg, Arg> {
-        enum {
-            value = ((CurrentArg == RankDest - 1) || (std::is_integral<Arg>::value)) &&
-                    (CurrentArg == RankSrc - 1)
+                                            RankDest, RankSrc, CurrentArg, Arg> {
+            enum {
+                value = ((CurrentArg == RankDest - 1) || (std::is_integral<Arg>::value)) &&
+                        (CurrentArg == RankSrc - 1)
+            };
         };
-        };
+
         template <class SrcTraits, class... Args>
         struct ViewMapping<
             typename std::enable_if<( std::is_same<typename SrcTraits::specialize, void>::value && ( std::is_same<typename SrcTraits::array_layout, Kokkos::LayoutHilbert>::value ) )>::type, SrcTraits, Args...> {
@@ -494,7 +496,6 @@ namespace Kokkos
                     const SubviewExtents<SrcTraits::rank, rank> extents(src.m_impl_offset.m_dim, args...);
 
                     dst.m_impl_offset = dst_offset_type(src.m_impl_offset, extents);
-
 
                     dst.m_impl_handle = ViewDataHandle<DstTraits>::assign(
                         src.m_impl_handle,
