@@ -1,16 +1,14 @@
-#ifndef HILBERT_HPP
-#define HILBERT_HPP
+#ifndef HILBERTVIEW_HPP
+#define HILBERTVIEW_HPP
 
 #ifndef DEBUG
     #define DEBUG 0 
 #endif 
 
 #include <Kokkos_Core.hpp>
-#include <Kokkos_UnorderedMap.hpp>
 
 namespace Kokkos
 {
-
     struct LayoutHilbert {
         typedef LayoutHilbert array_layout;
 

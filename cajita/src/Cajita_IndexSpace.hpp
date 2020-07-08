@@ -311,7 +311,18 @@ auto createSubview( const ViewType &view, const IndexSpace<1> &index_space )
     -> decltype( Kokkos::subview( view, index_space.range( 0 ) ) )
 {
     static_assert( 1 == ViewType::Rank, "Incorrect view rank" );
-    return Kokkos::subview( view, index_space.range( 0 ) );
+    if ( std::string( typeid(view.layout()).name() ).find("LayoutHilbert") != std::string::npos ) {
+      ViewType subView( "subView", index_space.extent( 0 ) );
+      for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+                      int ii_own = ii - index_space.min( 0 );
+
+                      subView( ii_own ) = view( ii );
+      }
+      return subView;
+    }
+    else {
+      return Kokkos::subview( view, index_space.range( 0 ) );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -326,8 +337,22 @@ auto createSubview( const ViewType &view, const IndexSpace<2> &index_space )
                                   index_space.range( 1 ) ) )
 {
     static_assert( 2 == ViewType::Rank, "Incorrect view rank" );
-    return Kokkos::subview( view, index_space.range( 0 ),
-                            index_space.range( 1 ) );
+    if ( std::string( typeid(view.layout()).name() ).find("LayoutHilbert") != std::string::npos ) {
+      ViewType subView( "subView", index_space.extent( 0 ), index_space.extent( 1 ) );
+      for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+          for ( int jj = index_space.min( 1 ); jj < index_space.max( 1 ); jj++ ) {
+                  int ii_own = ii - index_space.min( 0 );
+                  int jj_own = jj - index_space.min( 1 );
+
+                  subView( ii_own, jj_own ) = view( ii, jj );
+          }
+      }
+      return subView;
+    }
+    else {
+      return Kokkos::subview( view, index_space.range( 0 ),
+                              index_space.range( 1 ) );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -343,8 +368,25 @@ auto createSubview( const ViewType &view, const IndexSpace<3> &index_space )
                                   index_space.range( 2 ) ) )
 {
     static_assert( 3 == ViewType::Rank, "Incorrect view rank" );
-    return Kokkos::subview( view, index_space.range( 0 ),
-                            index_space.range( 1 ), index_space.range( 2 ) );
+      if ( std::string( typeid(view.layout()).name() ).find("LayoutHilbert") != std::string::npos ) {
+      ViewType subView( "subView", index_space.extent( 0 ), index_space.extent( 1 ), index_space.extent( 2 ) );
+      for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+          for ( int jj = index_space.min( 1 ); jj < index_space.max( 1 ); jj++ ) {
+              for ( int kk = index_space.min( 2 ); kk < index_space.max( 2 ); kk++ ) {
+                    int ii_own = ii - index_space.min( 0 );
+                    int jj_own = jj - index_space.min( 1 );
+                    int kk_own = kk - index_space.min( 2 );
+
+                    subView( ii_own, jj_own, kk_own ) = view( ii, jj, kk );
+              }
+          }
+      }
+      return subView;
+    }
+    else {
+      return Kokkos::subview( view, index_space.range( 0 ),
+                              index_space.range( 1 ), index_space.range( 2 ) );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -361,9 +403,29 @@ auto createSubview( const ViewType &view, const IndexSpace<4> &index_space )
                                   index_space.range( 3 ) ) )
 {
     static_assert( 4 == ViewType::Rank, "Incorrect view rank" );
-    return Kokkos::subview( view, index_space.range( 0 ),
-                            index_space.range( 1 ), index_space.range( 2 ),
-                            index_space.range( 3 ) );
+    if ( std::string( typeid(view.layout()).name() ).find("LayoutHilbert") != std::string::npos ) {
+      ViewType subView( "subView", index_space.extent( 0 ), index_space.extent( 1 ), index_space.extent( 2 ), index_space.extent( 3 ) );
+      for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+          for ( int jj = index_space.min( 1 ); jj < index_space.max( 1 ); jj++ ) {
+              for ( int kk = index_space.min( 2 ); kk < index_space.max( 2 ); kk++ ) {
+                  for ( int ll = index_space.min( 3 ); ll < index_space.max( 3 ); ll++ ) {
+                      int ii_own = ii - index_space.min( 0 );
+                      int jj_own = jj - index_space.min( 1 );
+                      int kk_own = kk - index_space.min( 2 );
+                      int ll_own = ll - index_space.min( 3 );
+
+                      subView( ii_own, jj_own, kk_own, ll_own ) = view( ii, jj, kk, ll );
+                  }
+              }
+          }
+      }
+      return subView;
+    }
+    else {
+      return Kokkos::subview( view, index_space.range( 0 ),
+                              index_space.range( 1 ), index_space.range( 2 ),
+                              index_space.range( 3 ) );
+    }
 }
 
 //---------------------------------------------------------------------------//
