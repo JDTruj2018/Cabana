@@ -6,7 +6,85 @@
 #endif 
 
 #include <Kokkos_Core.hpp>
+#include <Cajita_IndexSpace.hpp>
 
+namespace Cajita
+{
+    template <long N>
+    class IndexSpace;
+
+    template<class HilbertViewType, class ViewType>
+    void hilbertCopy( HilbertViewType& dest, const ViewType& src, const IndexSpace<4>& index_space ) {
+    for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+        for ( int jj = index_space.min( 1 ); jj < index_space.max( 1 ); jj++ ) {
+            for ( int kk = index_space.min( 2 ); kk < index_space.max( 2 ); kk++ ) {
+                for ( int ll = index_space.min( 3 ); ll < index_space.max( 3 ); ll++ ) {
+                    int ii_own = ii - index_space.min( 0 );
+                    int jj_own = jj - index_space.min( 1 );
+                    int kk_own = kk - index_space.min( 2 );
+                    int ll_own = ll - index_space.min( 3 );
+
+                    dest( ii, jj, kk, ll ) = src( ii_own, jj_own, kk_own, ll_own );
+                }
+            }
+        }
+        }
+    }
+
+    template<class HilbertViewType, class ViewType>
+    void hilbertSubview( const HilbertViewType& src, ViewType& dest, const IndexSpace<1>& index_space ) {
+    for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+        int ii_own = ii - index_space.min( 0 );
+
+        dest( ii_own ) = src( ii );
+    }
+    }
+
+    template<class HilbertViewType, class ViewType>
+    void hilbertSubview( const HilbertViewType& src, ViewType& dest, const IndexSpace<2>& index_space ) {
+    for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+        for ( int jj = index_space.min( 1 ); jj < index_space.max( 1 ); jj++ ) {
+            int ii_own = ii - index_space.min( 0 );
+            int jj_own = jj - index_space.min( 1 );
+
+            dest( ii_own, jj_own ) = src( ii, jj );
+        }
+    }
+    }
+
+    template<class HilbertViewType, class ViewType>
+    void hilbertSubview( const HilbertViewType& src, ViewType& dest, const IndexSpace<3>& index_space ) {
+    for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+        for ( int jj = index_space.min( 1 ); jj < index_space.max( 1 ); jj++ ) {
+        for ( int kk = index_space.min( 2 ); kk < index_space.max( 2 ); kk++ ) {
+            int ii_own = ii - index_space.min( 0 );
+            int jj_own = jj - index_space.min( 1 );
+            int kk_own = kk - index_space.min( 2 );
+
+            dest( ii_own, jj_own, kk_own ) = src( ii, jj, kk );
+        }
+        }
+    }
+    }
+
+    template<class HilbertViewType, class ViewType>
+    void hilbertSubview( const HilbertViewType& src, ViewType& dest, const IndexSpace<4>& index_space ) {
+    for ( int ii = index_space.min( 0 ); ii < index_space.max( 0 ); ii++ ) {
+        for ( int jj = index_space.min( 1 ); jj < index_space.max( 1 ); jj++ ) {
+        for ( int kk = index_space.min( 2 ); kk < index_space.max( 2 ); kk++ ) {
+            for ( int ll = index_space.min( 3 ); ll < index_space.max( 3 ); ll++ ) {
+                int ii_own = ii - index_space.min( 0 );
+                int jj_own = jj - index_space.min( 1 );
+                int kk_own = kk - index_space.min( 2 );
+                int ll_own = ll - index_space.min( 3 );
+
+                dest( ii_own, jj_own, kk_own, ll_own ) = src( ii, jj, kk, ll );
+            }
+        }
+        }
+    }
+    }
+}
 namespace Kokkos
 {
     struct LayoutHilbert {

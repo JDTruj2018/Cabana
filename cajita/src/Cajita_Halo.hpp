@@ -329,22 +329,7 @@ class Halo
             {
                 if ( std::string( typeid(view.layout()).name() ).find("LayoutHilbert") != std::string::npos ) {
                     view_type ghostedBuffer = _ghosted_buffers[unpack_index];
-
-                    for ( int ii = _ghosted_spaces[unpack_index].min( 0 ); ii < _ghosted_spaces[unpack_index].max( 0 ); ii++ ) {
-                        for ( int jj = _ghosted_spaces[unpack_index].min( 1 ); jj < _ghosted_spaces[unpack_index].max( 1 ); jj++ ) {
-                            for ( int kk = _ghosted_spaces[unpack_index].min( 2 ); kk < _ghosted_spaces[unpack_index].max( 2 ); kk++ ) {
-                                for ( int ll = _ghosted_spaces[unpack_index].min( 3 ); ll < _ghosted_spaces[unpack_index].max( 3 ); ll++ ) {
-                                    int ii_own = ii - _ghosted_spaces[unpack_index].min( 0 );
-                                    int jj_own = jj - _ghosted_spaces[unpack_index].min( 1 );
-                                    int kk_own = kk - _ghosted_spaces[unpack_index].min( 2 );
-                                    int ll_own = ll - _ghosted_spaces[unpack_index].min( 3 );
-
-                                    view( ii, jj, kk, ll ) = ghostedBuffer( ii_own, jj_own, kk_own, ll_own );
-
-                                }
-                            }
-                        }
-                    }
+                    Cajita::hilbertCopy( view, _ghosted_buffers[unpack_index], _ghosted_spaces[unpack_index] );
                 }
                 else {
                     auto subview =
